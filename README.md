@@ -1,2 +1,1 @@
-zmeditor -- a equation editor based on canvas
-========
+##zmeditor -- a equation editor based on canvas
