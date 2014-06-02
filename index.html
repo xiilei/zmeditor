@@ -1,72 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>draw canvas demo</title>
+        <title>draw canvas test</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
     </head>
     <body>
-        <div style="border:1px #0099b7 solid;margin: 20px auto;width:400px;">
-            <canvas width="400" height="300" id="dcanvas" >your browser not support canvas</canvas>
+    
+        <div style="margin: 20px auto;width:400px;">
+            <p>结果:<strong id="result">--</strong> <span style="color:silver;font-size:12px">仅识别1和括号..</span></p>
+            <canvas width="400" height="300" id="dcanvas" style="border:1px #0099b7 solid;" >your browser not support canvas</canvas>
         </div>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
-        <script type="text/javascript">
-            var _dom = $('#dcanvas');
-            var offset = _dom.offset();
-            var draw =_dom[0].getContext('2d');
-            var alive = false;
-            var points = [];
-            
-            
-            draw.lineWidth = 1.0;
-            draw.strokeStyle = "#000000"; 
-           
-            _dom.bind('mousedown',function(e){
-                var X= e.clientX-offset.left;
-                var Y= e.clientY-offset.top;
-                alive = true;
-                draw.beginPath();
-                draw.moveTo(X, Y);
-                points.push({X:X,Y:Y});
-            }).bind('mousemove',function(e){
-                var X= e.clientX-offset.left;
-                var Y= e.clientY-offset.top;
-                draw.lineTo(X,Y);
-                if(alive){
-                    draw.stroke();
-                }
-                points.push({X:X,Y:Y});
-                
-            }).bind('mouseup',function(){
-               // draw.stroke();
-               alive = false;
-               alert(guess());
-            });
-            
-            function distance(x1,x2){
-                return Math.sqrt(Math.pow(x2.Y-x1.Y,2) - Math.pow(x2.X - x1.X,2));
-            }
-            
-            function vdistance(x,a,b){
-               var s =  Math.abs((x.Y-a.Y)*(b.X-a.X)-(x.X-a.X)*(b.Y-a.Y))/2;
-               return s*2/distance(a,b);
-            }
-            
-            function guess(){
-                var start = points.shift();
-                var end = points.pop();
-                var base = distance(start,end)*.4,i=0,result = '1';
-                for(;i<points.length;i++){
-                   // console.log(vdistance(points[i],start,end));
-                    if(vdistance(points[i],start,end)>base){
-                        result = '括号';
-                        points = [];
-                        break;
-                    }
-                }
-                return result;
-            }
-            
-        </script>
+        <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+        <script type="text/javascript" src="./zmeditor-test.js"></script>
     </body>
 </html>
