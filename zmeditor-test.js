@@ -35,11 +35,15 @@ _dom.bind('mousedown',function(e){
    }
    if(points.length>2){               
       var result = guess();
-      resultdom.css('color','green').html(result.r == 2 ? '括号' :'1');
+      resultdom.css('color','green').html(result.r == 2 ? '弧线' :'直线');
       switch(result.r){
            case 1 :clear(); drawLine(result.pt[0],result.pt[1]);break;
            case 2:
-            console.log(rd(result.pt[1],result.pt[2],result.pt[0]));
+            //var _rd = rd(result.pt[0],result.pt[1],result.pt[2]);
+            //console.log(_rd);
+            //drawArc(_rd.c,_rd.r,_rd.start,_rd.end);
+            //clear();
+            drawQuadraticCurveTo(result.pt[1],result.pt[0],result.pt[2]);
             break;
       }
    }else{
@@ -67,24 +71,27 @@ function vd(x,a,b){
    return s2(x,a,b)*2/d3;
 }        
 
-function rd(a,b,m){
-   var d1 = d(a,m),d2 = d(b,m),d3 = d(a,b); 
-   var r = s2(a,b,m)*4/(d1+d2+d3);
-   var agi = Math.acos((r*r+r*r-d3*d3)/(2*r*r));
-   console.log(r,(r*r+r*r-d3*d3)/(2*r*r));
-   var starti = Math.atan2(a.X,a.Y);
-   return {r:r,start:starti,end:starti+agi};
+function rd(m,a,b){
+   var _d3 = d(a,b);
+   var _s = s2(a,b,m);
+   var _xc = s2({X:a.X*a.X+a.Y*a.Y,Y:a.Y},{X:b.X*b.X+b.Y*b.Y,Y:b.Y},{X:m.X*m.X+m.Y*m.Y,Y:m.Y})/(2*_s);
+   var _yc = s2({X:a.X,Y:a.X*a.X+a.Y*a.Y},{X:b.X,Y:b.X*b.X+b.Y*b.Y},{X:m.X,Y:m.X*m.X+m.Y*m.Y})/(2*_s);
+   var _r = Math.sqrt((m.X-_xc)*(m.X-_xc)+(m.Y-_yc)*(m.Y-_yc));
+   //var ang = Math.acos((_r*_r+_r*_r-_d3*_d3)/(2*_r*_r));
+   //var starta = Math.atan2(b.X,b.Y);
+   return {c:{X:_xc,Y:_yc},r:_r,start:0,end:360/Math.PI};
 }
 
 function guess(){
     var start = points.shift();
     var end = points.pop();
-    var base = d(start,end)*.2,i=0,result = {r:1,pt:[start,end]};
+    var base = d(start,end)*.2,i=0,result = {r:1,pt:[start,end]},_rd=0;
     for(;i<points.length;i++){
         //console.log(vd(points[i],start,end),base);
-        if(vd(points[i],start,end)>base){
+        _rd = vd(points[i],start,end);
+        if(_rd>base){
+            base = _rd;
             result = {r:2,pt:[points[i],start,end]};                        
-            break;
         }
     }               
     return result;
@@ -103,10 +110,20 @@ function drawLine(x1,x2){
     draw.stroke();
 }
 
-function drawArc(c,r,angle1,angle2){
+function drawArc(c,r,angle1,angle2,dir){
+    dir = dir || false;
     draw.lineWidth = 2.0;
     draw.strokeStyle = "green"; 
     draw.beginPath();
-    draw.arc(c.X,c.Y,r,angle1*Math.PI,angle2*Math.PI);
+    draw.arc(c.X,c.Y,r,angle1,angle2,dir);
+    draw.stroke();
+}
+
+function drawQuadraticCurveTo(a,b,c){
+    draw.lineWidth = 2.0;
+    draw.strokeStyle = "green"; 
+    draw.beginPath();
+    draw.moveTo(a.X, a.Y);
+    draw.quadraticCurveTo(b.X,b.Y,c.X,c.Y);
     draw.stroke();
 }
